@@ -1,4 +1,4 @@
-use std::{sync::{Arc, Mutex, mpsc}, thread, usize};
+use std::{sync::{Arc, Mutex, mpsc::{self, SendError}}, thread, usize};
 
 pub struct ThreadPool {
     threads_num: u8,
@@ -24,15 +24,29 @@ impl ThreadPool {
         }
     }
 
-    pub fn add_to_queue<F>(&self, job: F) 
+    pub fn add_to_queue<F>(&self, job: F) -> Result<(), SendError<JobOrDrop>>
     where
         F: FnOnce() + Send + 'static,
     {
-
+        self.sender.send(JobOrDrop::Job(Box::new(job)))
     }
 }
 
-enum JobOrDrop {
+impl Drop for ThreadPool {
+    fn drop(&mut self) {
+        for _ in 0..self.threads_num {
+            self.sender.send(JobOrDrop::Drop).unwrap()
+        }
+
+        for worker in &mut self.workers_pool {
+            if let Some(thread) = worker.thread.take() {
+                thread.join().unwrap();
+            }
+        }
+    }
+}
+
+pub enum JobOrDrop {
     Job(Box<dyn FnOnce() + Send + 'static>),
     Drop,
 }
@@ -44,9 +58,9 @@ struct Worker {
 impl Worker {
     fn new(receiver: Arc<Mutex<mpsc::Receiver<JobOrDrop>>>) -> Worker {
         let thread = thread::spawn(move || loop {
-            let message = receiver.lock().unwrap().recv().unwrap();
+            let job_or_drop = receiver.lock().unwrap().recv().unwrap();
 
-            match message {
+            match job_or_drop {
                 JobOrDrop::Job(f) => {
                     f();
                 }
