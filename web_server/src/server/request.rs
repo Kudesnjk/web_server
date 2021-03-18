@@ -1,7 +1,7 @@
 #[derive(Debug)]
 pub struct Request <'a>  {
-    method: &'a str,
-    path: &'a str,
+    pub method: &'a str,
+    pub path: &'a str,
 }
 
 impl <'a> Request <'a> {
