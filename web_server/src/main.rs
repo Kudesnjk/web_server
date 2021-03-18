@@ -1,10 +1,11 @@
-use thread_pool::ThreadPool;
-mod thread_pool;
-
-use http_handler::HTTPHandler;
-mod http_handler;
+mod server;
 
 use std::{env, net::TcpListener};
+use crate::server::file_manager;
+use crate::server::thread_pool::ThreadPool;
+use crate::server::http_handler;
+use std::path::PathBuf;
+use std::sync::Mutex;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -43,17 +44,25 @@ fn main() {
     };
 
     let pool = ThreadPool::new(threads_num);
-    let handler = HTTPHandler::new(pool);
+    // let root_path: PathBuf = match file_manager::new_root_dir("./") {
+    //     Some(t) => t,
+    //     None => {
+    //         println!("Incorrect document root path");
+    //         return;
+    //     }
+    // };
 
     for conn in listener.incoming() {
         let conn = match conn {
             Ok(t) => t,
             Err(e) => {
                 println!("Connection lost. \nError: {}", e.to_string());
-                return;
+                continue;
             }
         };
 
-        handler.handle_connection(conn);
+        pool.add_to_queue(|| {
+            http_handler::handle_request(conn)
+        });
     }
 }
