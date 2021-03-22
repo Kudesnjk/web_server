@@ -21,15 +21,16 @@ pub fn get_file(root_path: &path::Path, filename: &str) -> io::Result<fs::File> 
 pub fn get_mime_type(filename: &str) -> Option<&str> {
     let path = path::Path::new(filename);
     let extention = path.extension()?.to_str()?;
-    match extention {
-        "html" => Some("text/html"),
-        "css" => Some("text/css"),
-        "js" => Some("text/javascript"),
-        "jpg" => Some("image/jpeg"),
-        "jpeg" => Some("image/jpeg"),
-        "png" => Some("image/png"),
-        "gif" => Some("image/gif"),
-        "swf" => Some("application/vnd"),
-        _ => Some("text/plain"),
-    }
+    let mime_type = match extention {
+        "html" => "text/html",
+        "css" => "text/css",
+        "js" => "text/javascript",
+        "jpg" => "image/jpeg",
+        "jpeg" => "image/jpeg",
+        "png" => "image/png",
+        "gif" => "image/gif",
+        "swf" => "application/vnd",
+        _ => "text/plain",
+    };
+    Some(mime_type)
 }
