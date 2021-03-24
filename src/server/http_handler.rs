@@ -40,7 +40,7 @@ pub fn handle_request(mut conn: TcpStream) {
 
     let request = request.unwrap();
 
-    if request.method != "GET" || request.method != "HEAD" {
+    if request.method != "GET" && request.method != "HEAD" {
         return respond_err(&mut conn, METHOD_NOT_ALLOWED).unwrap_or_else(|e| {
             println!("{}", e)
         })
@@ -106,6 +106,12 @@ fn add_required_headers(conn: &mut TcpStream) -> std::io::Result<()> {
     conn.write(CONNECTION.as_bytes())?;
     conn.write(SEPARATOR)?;
     conn.write(SERVER.as_bytes())?;
+    conn.write(SEPARATOR)?;
+    Ok(())
+}
+
+fn write_with_sep(conn: &mut TcpStream, data: &[u8]) -> std::io::Result<()> {
+    conn.write(data)?;
     conn.write(SEPARATOR)?;
     Ok(())
 }
