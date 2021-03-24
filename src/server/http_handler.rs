@@ -39,6 +39,13 @@ pub fn handle_request(mut conn: TcpStream) {
     }
 
     let request = request.unwrap();
+
+    if request.method != "GET" || request.method != "HEAD" {
+        return respond_err(&mut conn, METHOD_NOT_ALLOWED).unwrap_or_else(|e| {
+            println!("{}", e)
+        })
+    }
+
     let file = get_file(root_path, request.path);
 
     if file.is_err() {
