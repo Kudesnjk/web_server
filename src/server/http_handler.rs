@@ -1,7 +1,10 @@
 use std::{net::TcpStream, io::{Read, Write}, path};
 use crate::server::request::Request;
 use crate::server::file_manager::{get_file, get_mime_type};
+use crate::config::config::DEFAULT_ROOT;
 use chrono::Datelike;
+use std::fs::File;
+use std::sync::Arc;
 
 const BAD_REQUEST: &'static[u8] = b"HTTP/1.1 400 BAD REQUEST";
 const NOT_FOUND: &'static[u8] = b"HTTP/1.1 404 NOT FOUND";
@@ -13,8 +16,8 @@ const CONNECTION: &'static str = "Connection: Closed";
 const SERVER: &'static str = "Server: Pismenniy Daniil";
 const SEPARATOR: &'static[u8] = b"\r\n";
 
-pub fn handle_request(mut conn: TcpStream) {
-    let root_path = path::Path::new("/home/daniil/Desktop/web_server/static");
+pub fn handle_request(mut conn: TcpStream, document_root: Arc<String>) {
+    let root_path = path::Path::new(document_root.as_str());
 
     let mut buf = [0; 1024];
 

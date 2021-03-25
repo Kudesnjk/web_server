@@ -1,13 +1,13 @@
 use std::{sync::{Arc, Mutex, mpsc::{self, SendError}}, thread, usize};
 
 pub struct ThreadPool {
-    threads_num: u8,
+    threads_num: u16,
     workers_pool: Vec<Worker>,
     sender: mpsc::Sender<JobOrDrop>,
 }
 
 impl ThreadPool {
-    pub fn new(threads_num: u8) -> ThreadPool {
+    pub fn new(threads_num: u16) -> ThreadPool {
         let (sender, receiver) = mpsc::channel();
         let receiver = Arc::new(Mutex::new(receiver));
         

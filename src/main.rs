@@ -1,35 +1,30 @@
 mod server;
+mod config;
 
 use std::{env, net::TcpListener};
 use crate::server::file_manager;
 use crate::server::thread_pool::ThreadPool;
 use crate::server::http_handler;
+use crate::config::config::Config;
 use std::path::PathBuf;
-use std::sync::Mutex;
+use std::sync::{Mutex, Arc};
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    if args.len() != 4 {
-        println!("Usage: cargo run $host $port $threads_num!");
+    if args.len() != 3 {
+        println!("Usage: cargo run $host $port!");
         return
     }
     
     let host = &args[1];
     let port = &args[2];
-    let threads_num_str = &args[3];
 
-    let threads_num: u8 = match threads_num_str.parse() {
-        Ok(t) => {
-            if t == 0 {
-                println!("Number of threads should be from 1 to 255");
-                return;
-            }
-            t
-        }
-        Err(_) => {
-            println!("Number of threads should be from 1 to 255");
+    let config = match Config::new() {
+        Some(c) => c,
+        None => {
+            println!("Config file is incorrect!");
             return;
-        } 
+        }
     };
 
     let listener = match TcpListener::bind(format!("{}:{}", host, port)) {
@@ -38,19 +33,13 @@ fn main() {
             t
         },
         Err(e) => {
-            println!("Error occured while binding tcp listener. \nError: {}", e.to_string());
+            println!("Error occurred while binding tcp listener. \nError: {}", e.to_string());
             return;
         },
     };
 
-    let pool = ThreadPool::new(threads_num);
-    // let root_path: PathBuf = match file_manager::new_root_dir("./") {
-    //     Some(t) => t,
-    //     None => {
-    //         println!("Incorrect document root path");
-    //         return;
-    //     }
-    // };
+    let pool = ThreadPool::new(config.thread_limit);
+    let guarded_root = Arc::new(config.document_root);
 
     for conn in listener.incoming() {
         let conn = match conn {
@@ -61,8 +50,10 @@ fn main() {
             }
         };
 
+        let clone = guarded_root.clone();
+
         pool.add_to_queue(|| {
-            http_handler::handle_request(conn)
+            http_handler::handle_request(conn, clone)
         });
     }
 }
