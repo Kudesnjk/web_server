@@ -37,6 +37,8 @@ fn main() {
     };
 
     let pool = ThreadPool::new(config.thread_limit);
+    println!("Server is running with {} threads", config.thread_limit);
+
     let guarded_root = Arc::new(config.document_root);
 
     for conn in listener.incoming() {
