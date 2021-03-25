@@ -1,7 +1,7 @@
 # Веб-сервер
 Highload. Домашнее задание №2. Разработка веб-сервера для отдачи статики с диска.
 
-### Использование:
+## Использование:
 
 #### Config: `/etc/httpd.conf`
 ```
@@ -16,9 +16,9 @@ cd web_server
 docker build -t web_server .
 docker run -p 80:80 -v /etc/httpd.conf:/etc/httpd.conf:ro -v /var/www/html:/var/www/html:ro --name web_server web_server
 ```
-### Benchmarks
+## Benchmarks
 
-####nginx
+### nginx
 
 ```
 Running 30s test @ http://localhost/httptest/wikipedia_russia.html
@@ -31,7 +31,7 @@ Running 30s test @ http://localhost/httptest/wikipedia_russia.html
 Requests/sec:   3392.92
 Transfer/sec:      3.02GB
 ```
-####rust web-server
+### rust web-server
 
 ```
 Running 30s test @ http://localhost:8080/httptest/wikipedia_russia.html
