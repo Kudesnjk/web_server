@@ -72,12 +72,9 @@ pub fn handle_request(mut conn: TcpStream, document_root: Arc<String>) {
     let headers = [mime_type, content_length];
     let join = headers.join("\r\n");
 
-    conn.write(OK_REQUEST);
-    conn.write(SEPARATOR);
-    conn.write(&join.as_bytes());
-    conn.write(SEPARATOR);
+    write_with_sep(&mut conn, OK_REQUEST);
+    write_with_sep(&mut conn, &join.as_bytes());
     add_required_headers(&mut conn);
-    conn.write(SEPARATOR);
 
     if request.method == "GET" {
         let mut buffer = Vec::new();
@@ -95,21 +92,17 @@ pub fn handle_request(mut conn: TcpStream, document_root: Arc<String>) {
 }
 
 fn respond_err(conn: &mut TcpStream, resp: &'static [u8]) -> std::io::Result<()> {
-    conn.write(resp)?;
-    conn.write(SEPARATOR)?;
+    write_with_sep(conn, resp)?;
     add_required_headers(conn)?;
-    conn.write(SEPARATOR)?;
     conn.flush()?;
     Ok(())
 }
 
 fn add_required_headers(conn: &mut TcpStream) -> std::io::Result<()> {
-    conn.write(get_date().as_bytes())?;
-    conn.write(SEPARATOR)?;
-    conn.write(CONNECTION.as_bytes())?;
-    conn.write(SEPARATOR)?;
-    conn.write(SERVER.as_bytes())?;
-    conn.write(SEPARATOR)?;
+    write_with_sep(conn, get_date().as_bytes())?;
+    write_with_sep(conn, CONNECTION.as_bytes())?;
+    write_with_sep(conn, SERVER.as_bytes())?;
+    conn.write(SEPARATOR);
     Ok(())
 }
 
