@@ -1,6 +1,6 @@
 use std::{net::TcpStream, io::{Read, Write}, path};
 use crate::server::request::Request;
-use crate::server::file_manager::{get_file, get_mime_type};
+use crate::server::file_manager::{get_file, get_mime_type, DEFAULT_PATH};
 use std::sync::Arc;
 
 const BAD_REQUEST: &'static[u8] = b"HTTP/1.1 400 BAD REQUEST";
@@ -8,6 +8,7 @@ const NOT_FOUND: &'static[u8] = b"HTTP/1.1 404 NOT FOUND";
 const OK_REQUEST: &'static[u8] = b"HTTP/1.1 200 OK";
 const INTERNAL_ERROR: &'static[u8] = b"HTTP/1.1 500 INTERNAL SERVER ERROR";
 const METHOD_NOT_ALLOWED: &'static[u8] = b"HTTP/1.1 405 METHOD NOT ALLOWED";
+const FORBIDDEN: &'static[u8] = b"HTTP/1.1 403 FORBIDDEN";
 
 const CONNECTION: &'static str = "Connection: Closed";
 const SERVER: &'static str = "Server: Pismenniy Daniil";
@@ -38,7 +39,7 @@ pub fn handle_request(mut conn: TcpStream, document_root: Arc<String>) {
         });
     }
 
-    let request = request.unwrap();
+    let mut request = request.unwrap();
 
     if request.method != "GET" && request.method != "HEAD" {
         return respond_err(&mut conn, METHOD_NOT_ALLOWED).unwrap_or_else(|e| {
@@ -46,7 +47,13 @@ pub fn handle_request(mut conn: TcpStream, document_root: Arc<String>) {
         })
     }
 
-    let file = get_file(root_path, request.path);
+    let file = get_file(root_path, &mut request.path);
+
+    if file.is_err() && request.path.ends_with(DEFAULT_PATH) {
+        return respond_err(&mut conn, FORBIDDEN).unwrap_or_else(|e| {
+            println!("{}", e)
+        });
+    }
 
     if file.is_err() {
         return respond_err(&mut conn, NOT_FOUND).unwrap_or_else(|e| {
@@ -55,7 +62,7 @@ pub fn handle_request(mut conn: TcpStream, document_root: Arc<String>) {
     }
 
     let mut file = file.unwrap();
-    let mime_type = get_mime_type(request.path);
+    let mime_type = get_mime_type(&request.path);
 
     if mime_type.is_none() {
         return respond_err(&mut conn, NOT_FOUND).unwrap_or_else(|e| {
