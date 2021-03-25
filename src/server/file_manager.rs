@@ -1,7 +1,6 @@
 use std::fs;
 use std::path;
 use std::io;
-use std::io::Read;
 
 pub fn new_root_dir(document_root: &str) -> Option<path::PathBuf> {
     let path = path::Path::new(document_root);

@@ -1,5 +1,4 @@
 use std::io::Read;
-use std::borrow::Borrow;
 
 const CONFIG_PATH: &'static str = "/etc/httpd.conf";
 
@@ -23,7 +22,7 @@ impl Config {
         let mut file = std::fs::File::open(CONFIG_PATH).ok()?;
         let mut buf = String::new();
         file.read_to_string(&mut buf).ok()?;
-        let mut splitted = buf.split("\n");
+        let splitted = buf.split("\n");
 
         let mut config = Config {
             cpu_limit: DEFAULT_CPU,

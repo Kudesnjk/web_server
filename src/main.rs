@@ -2,12 +2,10 @@ mod server;
 mod config;
 
 use std::{env, net::TcpListener};
-use crate::server::file_manager;
 use crate::server::thread_pool::ThreadPool;
 use crate::server::http_handler;
 use crate::config::config::Config;
-use std::path::PathBuf;
-use std::sync::{Mutex, Arc};
+use std::sync::Arc;
 
 fn main() {
     let args: Vec<String> = env::args().collect();

@@ -1,9 +1,6 @@
 use std::{net::TcpStream, io::{Read, Write}, path};
 use crate::server::request::Request;
 use crate::server::file_manager::{get_file, get_mime_type};
-use crate::config::config::DEFAULT_ROOT;
-use chrono::Datelike;
-use std::fs::File;
 use std::sync::Arc;
 
 const BAD_REQUEST: &'static[u8] = b"HTTP/1.1 400 BAD REQUEST";
@@ -79,7 +76,7 @@ pub fn handle_request(mut conn: TcpStream, document_root: Arc<String>) {
     if request.method == "GET" {
         let mut buffer = Vec::new();
         match file.read_to_end(&mut buffer) {
-            Err(e) => {
+            Err(_) => {
                 return respond_err(&mut conn, INTERNAL_ERROR).unwrap_or(());
             },
             _ => (),
