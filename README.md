@@ -21,28 +21,38 @@ docker run -p 80:80 -v /etc/httpd.conf:/etc/httpd.conf:ro -v /var/www/html:/var/
 ### nginx
 
 ```
-Running 30s test @ http://localhost/httptest/wikipedia_russia.html
-  8 threads and 2000 connections
-  Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency   294.12ms   35.20ms 573.46ms   90.36%
-    Req/Sec   463.39    315.42     1.79k    72.99%
-  102058 requests in 30.08s, 90.78GB read
-  Socket errors: connect 987, read 0, write 0, timeout 0
-Requests/sec:   3392.92
-Transfer/sec:      3.02GB
+Document Path:          /httptest/wikipedia_russia.html
+Document Length:        954824 bytes
+
+Concurrency Level:      10
+Time taken for tests:   7.173 seconds
+Complete requests:      20000
+Failed requests:        0
+Total transferred:      19101420000 bytes
+HTML transferred:       19096480000 bytes
+Requests per second:    2788.05 [#/sec] (mean)
+Time per request:       3.587 [ms] (mean)
+Time per request:       0.359 [ms] (mean, across all concurrent requests)
+Transfer rate:          2600381.19 [Kbytes/sec] received
+
 ```
 ### rust web-server
 
 ```
-Running 30s test @ http://localhost:8080/httptest/wikipedia_russia.html
-  8 threads and 2000 connections
-  Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency   120.34ms  104.38ms   3.38s    94.27%
-    Req/Sec   304.44    105.37   646.00     65.55%
-  72644 requests in 30.08s, 64.61GB read
-  Socket errors: connect 987, read 72630, write 0, timeout 0
-Requests/sec:   2415.09
-Transfer/sec:      2.15GB
+Document Path:          /httptest/wikipedia_russia.html
+Document Length:        954824 bytes
+
+Concurrency Level:      10
+Time taken for tests:   9.903 seconds
+Complete requests:      20000
+Failed requests:        0
+Total transferred:      19099500000 bytes
+HTML transferred:       19096480000 bytes
+Requests per second:    2019.60 [#/sec] (mean)
+Time per request:       4.951 [ms] (mean)
+Time per request:       0.495 [ms] (mean, across all concurrent requests)
+Transfer rate:          1883462.86 [Kbytes/sec] received
+
 ```
 
 

@@ -8,10 +8,7 @@ pub struct Request <'a>  {
 
 impl <'a> Request <'a> {
     pub fn new(buf: &[u8]) -> Option<Request> {
-        let request_str = match std::str::from_utf8(buf) {
-            Ok(t) => t,
-            Err(_) => return None,
-        };
+        let request_str = std::str::from_utf8(buf).ok()?;
 
         let mut first_line = request_str.split("\r\n").next()?.split(" ");
         let method = first_line.next()?;
