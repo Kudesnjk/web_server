@@ -25,9 +25,7 @@ pub fn handle_request(mut conn: TcpStream, document_root: Arc<String>) {
     };
 
     if request_str.is_err() {
-        return respond_err(&mut conn, BAD_REQUEST).unwrap_or_else(|e| {
-            println!("{}", e)
-        });
+        return respond_err(&mut conn, BAD_REQUEST).unwrap_or(());
     }
 
     let request_str = request_str.unwrap();
